@@ -46,50 +46,45 @@ Login interface
 
 Calculating  BMI
 ==================
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setTitle("BMI App");
-        Button login= (Button)  findViewById(R.id.check_password_username);
-        username=(EditText) findViewById(R.id.check_username);
-        password=(EditText) findViewById(R.id.check_password);
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if( username.getText().toString().equals("") || password.getText().toString().equals("")){
-                        Toast.makeText(MainActivity.this, "Please fill out the  Fields.", Toast.LENGTH_SHORT).show();
+             public void onClick(View v) {
+                final EditText heightText = findViewById(R.id.height);
+                String heightStr = heightText.getText().toString();
+                double height = Double.parseDouble(heightStr);
+                final EditText weightText = findViewById(R.id.weight);
+                String weightStr = weightText.getText().toString();
+                double weight = Double.parseDouble(weightStr);
+                double BMI = ((weight) / (height * height))*10000;
+                DecimalFormat df = new DecimalFormat("#.#");
+                double BMI_trimmed = Double.parseDouble(df.format(BMI));
+                final TextView BMIResult = findViewById(R.id.result);
+                BMIResult.setText(Double.toString(BMI_trimmed));
+                String BMI_Cat;
+
+                 if (BMI < 18.5){
+                    BMI_Cat = "Underweight";
                 }
-                try {
-                    InputStream in = getAssets().open("file.txt");
-                  BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                    String text="";
-                    int counter=0;
-                    while ((text = br.readLine()) != null) {
-
-                        String[] credentials = text.split(" ");
-                        if (username.getText().toString().equals(credentials[0]) && password.getText().toString().equals(credentials[1])) {
-                            counter =1;
-                        Intent intent = new Intent(getApplicationContext(), MainActivity2.class);//                            intent.putExtra("username", username.getText().toString());
-                        startActivity(intent);
-
-                        }
-
-                    }
-                    if (counter==0){
-                        Toast.makeText(getBaseContext(), "Invalid username or password " , Toast.LENGTH_LONG).show();
-                    }
-
-
-                }catch (IOException ex){
-                    ex.printStackTrace();
+                else if (BMI >=18.5 && BMI < 25){
+                    BMI_Cat = "Normal";
                 }
-
+                else if (BMI >= 25 && BMI < 30){
+                    BMI_Cat = "Overweight";
+                }
+                else {
+                    BMI_Cat = "Obese ";
+                }
+                final TextView BMICategory = findViewById(R.id.bmiCat);
+                BMICategory.setText(BMI_Cat);
+                Intent intent = new Intent();
+                intent.setAction("BMICondition");
+                intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);//Even when the receiving  application is stopped you have to send intent
+                intent.putExtra("condition", BMI_Cat);
+                sendBroadcast(intent);
             }
         });
-
     }
+
+
 }
-
-
 Connecting to another app
 ==========================
   protected void onCreate(Bundle savedInstanceState) {
